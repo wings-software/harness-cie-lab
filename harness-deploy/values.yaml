@@ -1,0 +1,34 @@
+name: payment-service
+replicas: 1
+
+image: <+artifact.image>
+# dockercfg: <+artifact.imagePullSecret>
+
+createNamespace: true
+namespace: <+infra.namespace>
+
+# Service Type allow you to specify what kind of service you want.
+# Possible values for ServiceType are:
+# ClusterIP | NodePort | LoadBalancer | ExternalName
+serviceType: ClusterIP
+
+# A Service can map an incoming port to any targetPort.
+# targetPort is where application is listening on inside the container.
+servicePort: 8080
+serviceTargetPort: 8080
+
+sename: "bootcamp"
+
+# Specify all environment variables to be added to the container.
+# The following two maps, config and secrets, are put into a ConfigMap
+# and a Secret, respectively.
+# Both are added to the container environment in podSpec as envFrom source.
+
+env:
+  config:
+  #  HARNESS_FF_KEY: sdkkey
+  #  HARNESS_SE:seusername
+    HARNESS_BUILD: <+pipeline.sequenceId>
+  secrets:
+    key2: value2
+

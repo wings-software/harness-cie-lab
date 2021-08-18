@@ -1,0 +1,106 @@
+{{- if .Values.env.config}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ {{- if .Values.sename}}
+ name: {{ .Values.name }}-{{ .Values.sename }}
+ {{- else }}
+ name: {{.Values.name}}
+ {{- end }} 
+data:
+{{.Values.env.config | toYaml | indent 2}}
+---
+{{- end}}
+
+{{- if .Values.env.secrets}}
+apiVersion: v1
+kind: Secret
+metadata:
+ {{- if .Values.sename}}
+ name: {{ .Values.name }}-{{ .Values.sename }}
+ {{- else }}
+ name: {{.Values.name}}
+ {{- end }} 
+stringData:
+{{.Values.env.secrets | toYaml | indent 2}}
+---
+{{- end}}
+
+{{- if .Values.dockercfg}}
+apiVersion: v1
+kind: Secret
+metadata:
+  {{- if .Values.sename }}
+  name: {{ .Values.name }}-{{ .Values.sename }}-dockercfg
+  {{- else }}
+  name: {{ .Values.name }}
+  {{- end }}
+  annotations:
+    harness.io/skip-versioning: true
+data:
+  .dockercfg: {{.Values.dockercfg}}
+type: kubernetes.io/dockercfg
+---
+{{- end}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ {{- if .Values.sename}}
+ name: {{ .Values.name }}-{{ .Values.sename }}-deployment
+ {{- else }}
+ name: {{.Values.name}}-deployment
+ {{- end }} 
+spec:
+  replicas: {{int .Values.replicas}}
+  selector:
+    matchLabels:
+     {{- if .Values.sename}}
+      app: {{ .Values.name }}-{{ .Values.sename }}
+     {{- else }}
+      app: {{ .Values.name }}
+     {{- end }} 
+  template:
+    metadata:
+      labels:
+        {{- if .Values.sename}}
+        app: {{ .Values.name }}-{{ .Values.sename }}
+        {{- else }}
+        app: {{ .Values.name }}
+        {{- end }} 
+    spec:
+      {{- if .Values.dockercfg}}
+      imagePullSecrets:
+      {{- if .Values.sename }}
+      - name: {{ .Values.name }}-{{ .Values.sename }}-dockercfg
+      {{- else }}
+      - name: {{ .Values.name }}-dockercfg
+      {{- end}}
+      {{- end}}
+      containers:
+      {{- if .Values.sename }}
+      - name: {{ .Values.name }}-{{ .Values.sename }}
+      {{- else }}
+      - name: {{ .Values.name }}
+      {{- end}}
+        image: {{ .Values.image }}
+        {{- if or .Values.env.config .Values.env.secrets}}
+        imagePullPolicy: Always
+        envFrom:
+        {{- if .Values.env.config}}
+        - configMapRef:
+            {{- if .Values.sename }}
+            name: {{ .Values.name }}-{{ .Values.sename }}
+            {{- else}}
+            name: {{ .Values.name }}
+            {{- end}}
+        {{- end}}
+        {{- if .Values.env.secrets}}
+        - secretRef:
+            {{- if .Values.sename }}
+            name: {{ .Values.name }}-{{ .Values.sename }}
+            {{- else}}
+            name: {{ .Values.name }}
+            {{- end}}
+        {{- end}}
+        {{- end}}

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+{{- if .Values.sename}}
+  name: {{.Values.name}}-{{.Values.sename}}-svc
+{{- else }}
+  name: {{.Values.name}}-svc
+{{- end }}
+spec:
+  type: {{.Values.serviceType}}
+  ports:
+  - port: {{.Values.servicePort}}
+    targetPort: {{.Values.serviceTargetPort}}
+    protocol: TCP
+  selector:
+  {{- if .Values.sename }}
+    app: {{.Values.name}}-{{.Values.sename}}
+  {{- else }}
+    app: {{.Values.name}}
+ {{- end }}
