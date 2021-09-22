@@ -17,7 +17,7 @@ serviceType: ClusterIP
 servicePort: 8080
 serviceTargetPort: 8080
 
-sename: "bootcamp"
+sename: <+pipeline.variables.seusername>
 
 # Specify all environment variables to be added to the container.
 # The following two maps, config and secrets, are put into a ConfigMap
@@ -26,8 +26,8 @@ sename: "bootcamp"
 
 env:
   config:
-  #  HARNESS_FF_KEY: sdkkey
-  #  HARNESS_SE:seusername
+    HARNESS_FF_KEY: <+pipeline.variables.ffsdkkeyprod>
+    HARNESS_SE: <+pipeline.variables.ffsdkkeyprod>
     HARNESS_BUILD: <+pipeline.sequenceId>
   secrets:
     key2: value2
