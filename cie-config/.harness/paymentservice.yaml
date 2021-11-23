@@ -1,0 +1,78 @@
+pipeline:
+    name: payment-service
+    identifier: paymentservice
+    projectIdentifier: bootcampciephil
+    orgIdentifier: default
+    tags: {}
+    properties:
+        ci:
+            codebase:
+                connectorRef: github_harness_demo
+                repoName: harness-cie-lab
+                build: <+input>
+    stages:
+        - stage:
+              name: build
+              identifier: build
+              description: ""
+              type: CI
+              spec:
+                  cloneCodebase: true
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          connectorRef: account.bootcampgkecluster
+                          namespace: payment-service-build
+                  execution:
+                      steps:
+                          - step:
+                                type: RunTests
+                                name: runTestsWithIntelligence
+                                identifier: runTestsWithIntelligence
+                                spec:
+                                    connectorRef: account.bootcampdockerhub
+                                    image: nikpap/mvn-openjdk-8:harness
+                                    language: Java
+                                    buildTool: Maven
+                                    args: test
+                                    packages: com.nikp
+                                    runOnlySelectedTests: true
+                                    preCommand: cd payment-service
+                                    reports:
+                                        type: JUnit
+                                        spec:
+                                            paths:
+                                                - "**/*.xml"
+                                    resources:
+                                        limits:
+                                            memory: 2Gi
+                                            cpu: "2"
+                                description: |
+                                    runTestsWithIntelligence
+                          - step:
+                                type: Run
+                                name: build
+                                identifier: build
+                                spec:
+                                    connectorRef: account.bootcampdockerhub
+                                    image: nikpap/mvn-openjdk-8:harness
+                                    command: |
+                                        cd payment-service
+                                        mvn -Dmaven.test.skip=true clean install -X
+                                    privileged: false
+                                    resources:
+                                        limits:
+                                            memory: 1Gi
+                                            cpu: "1"
+                          - step:
+                                type: BuildAndPushDockerRegistry
+                                name: pushToDockerHub
+                                identifier: pushToDockerHub
+                                spec:
+                                    connectorRef: account.bootcampdockerhub
+                                    repo: nikpap/payment-service
+                                    tags:
+                                        - philipnichols-latest
+                                    dockerfile: /harness/payment-service/Dockerfile
+                                    optimize: true
+              variables: []
