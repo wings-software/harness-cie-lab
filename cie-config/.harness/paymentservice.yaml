@@ -76,3 +76,69 @@ pipeline:
                                     dockerfile: /harness/payment-service/Dockerfile
                                     optimize: true
               variables: []
+        - stage:
+              name: DeployDev
+              identifier: DeployDev
+              description: ""
+              type: Deployment
+              spec:
+                  serviceConfig:
+                      serviceRef: paymentservice
+                      serviceDefinition:
+                          type: Kubernetes
+                          spec:
+                              variables: []
+                              manifests:
+                                  - manifest:
+                                        identifier: values
+                                        type: Values
+                                        spec:
+                                            store:
+                                                type: Github
+                                                spec:
+                                                    connectorRef: github_harness_demo
+                                                    gitFetchType: Branch
+                                                    paths:
+                                                        - harness-deploy/payment-service-dev
+                                                    repoName: harness-cie-lab
+                                                    branch: main
+                              artifacts:
+                                  primary:
+                                      type: DockerRegistry
+                                      spec:
+                                          connectorRef: account.bootcampdockerhub
+                                          imagePath: nikpap/payment-service
+                                          tag: philipnichols-latest
+                  infrastructure:
+                      environmentRef: GKEDEV
+                      infrastructureDefinition:
+                          type: KubernetesDirect
+                          spec:
+                              connectorRef: account.bootcampgkecluster
+                              namespace: payment-service-dev
+                              releaseName: release-<+INFRA_KEY>
+                      allowSimultaneousDeployments: false
+                  execution:
+                      steps:
+                          - step:
+                                name: Rollout Deployment
+                                identifier: rolloutDeployment
+                                type: K8sRollingDeploy
+                                timeout: 10m
+                                spec:
+                                    skipDryRun: false
+                                failureStrategies: []
+                      rollbackSteps:
+                          - step:
+                                name: Rollback Rollout Deployment
+                                identifier: rollbackRolloutDeployment
+                                type: K8sRollingRollback
+                                timeout: 10m
+                                spec: {}
+              tags: {}
+              failureStrategies:
+                  - onFailure:
+                        errors:
+                            - AllErrors
+                        action:
+                            type: StageRollback
