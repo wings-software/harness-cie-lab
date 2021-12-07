@@ -116,7 +116,7 @@ pipeline:
                                                     paths:
                                                         - harness-deploy/payment-service-dev
                                                     repoName: harness-cie-lab
-                                                    branch: maini
+                                                    branch: main
                                             skipResourceVersioning: false
                               artifacts:
                                   primary:
