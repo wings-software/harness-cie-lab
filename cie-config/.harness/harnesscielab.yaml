@@ -160,4 +160,4 @@ pipeline:
     variables:
         - name: seusername
           type: String
-          value: Runtime Input
+          value: <+input>
