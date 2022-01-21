@@ -159,5 +159,5 @@ pipeline:
           value: <+input>
         - name: ffsdkkeyprod
           type: String
-          default: "false"
+          default: "False"
           value: <+input>
