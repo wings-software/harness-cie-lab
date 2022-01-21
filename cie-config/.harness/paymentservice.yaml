@@ -1,0 +1,47 @@
+pipeline:
+    stages:
+        - stage:
+              type: CI
+              spec:
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          namespace: payment-service-build
+                          connectorRef: account.bootcampgkecluster
+                  execution:
+                      steps:
+                          - step:
+                                type: RunTests
+                                spec:
+                                    runOnlySelectedTests: true
+                                    resources:
+                                        limits:
+                                            memory: 2Gi
+                                            cpu: "2"
+                                    reports:
+                                        type: JUnit
+                                        spec:
+                                            paths:
+                                                - "**/*.xml"
+                                    preCommand: cd payment-service
+                                    packages: com.nikp
+                                    language: Java
+                                    image: nikpap/mvn-openjdk-8:harness
+                                    connectorRef: account.bootcampdockerhub
+                                    buildTool: Maven
+                                    args: test
+                                name: runTestsWithIntelligence
+                                identifier: runTestsWithIntelligence
+                  cloneCodebase: true
+              name: Build
+              identifier: Build
+    properties:
+        ci:
+            codebase:
+                repoName: harness-cie-lab
+                connectorRef: githubLixCraft
+                build: <+input>
+    projectIdentifier: handsoncieLixCraft
+    orgIdentifier: default
+    name: payment-service
+    identifier: paymentservice
