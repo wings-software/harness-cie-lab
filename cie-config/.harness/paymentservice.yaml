@@ -1,0 +1,159 @@
+pipeline:
+    stages:
+        - stage:
+              type: CI
+              spec:
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          namespace: payment-service-build
+                          connectorRef: account.bootcampgkecluster
+                  execution:
+                      steps:
+                          - step:
+                                type: RunTests
+                                spec:
+                                    runOnlySelectedTests: true
+                                    resources:
+                                        limits:
+                                            memory: 2Gi
+                                            cpu: "2"
+                                    reports:
+                                        type: JUnit
+                                        spec:
+                                            paths:
+                                                - "**/*.xml"
+                                    preCommand: cd payment-service
+                                    packages: com.nikp
+                                    language: Java
+                                    image: nikpap/mvn-openjdk-8:harness
+                                    connectorRef: account.bootcampdockerhub
+                                    buildTool: Maven
+                                    args: test
+                                name: runTestsWithIntelligence
+                                identifier: runTestsWithIntelligence
+                          - step:
+                                type: Run
+                                name: Build
+                                identifier: Build
+                                spec:
+                                    connectorRef: account.bootcampdockerhub
+                                    image: nikpap/mvn-openjdk-8:harness
+                                    command: |-
+                                        cd payment-service
+                                        mvn -Dmaven.test.skip=true clean install -X
+                                    resources:
+                                        limits:
+                                            memory: 1Gi
+                                            cpu: "1"
+                          - step:
+                                type: BuildAndPushDockerRegistry
+                                name: pushToDockerHub
+                                identifier: pushToDockerHub
+                                spec:
+                                    connectorRef: account.bootcampdockerhub
+                                    repo: nikpap/payment-service
+                                    tags:
+                                        - LixCraft-latest
+                                    dockerfile: /harness/payment-service/Dockerfile
+                                    optimize: true
+                                    resources:
+                                        limits:
+                                            memory: 1Gi
+                                            cpu: "1"
+                  cloneCodebase: true
+              name: Build
+              identifier: Build
+        - stage:
+              name: DeployDev
+              identifier: DeployDev
+              description: ""
+              type: Deployment
+              spec:
+                  serviceConfig:
+                      serviceRef: paymentservice
+                      serviceDefinition:
+                          type: Kubernetes
+                          spec:
+                              variables: []
+                              manifests:
+                                  - manifest:
+                                        identifier: values
+                                        type: Values
+                                        spec:
+                                            store:
+                                                type: Github
+                                                spec:
+                                                    connectorRef: githubLixCraft
+                                                    gitFetchType: Branch
+                                                    paths:
+                                                        - harness-deploy/values.yaml
+                                                    repoName: harness-cie-lab
+                                                    branch: main
+                                  - manifest:
+                                        identifier: templates
+                                        type: K8sManifest
+                                        spec:
+                                            store:
+                                                type: Github
+                                                spec:
+                                                    connectorRef: githubLixCraft
+                                                    gitFetchType: Branch
+                                                    paths:
+                                                        - harness-deploy/payment-service-dev
+                                                    repoName: harness-cie-lab
+                                                    branch: main
+                                            skipResourceVersioning: false
+                              artifacts:
+                                  primary:
+                                      spec:
+                                          connectorRef: account.bootcampdockerhub
+                                          imagePath: nikpap/payment-service
+                                          tag: LixCraft-latest
+                                      type: DockerRegistry
+                  infrastructure:
+                      environmentRef: GKEDEV
+                      infrastructureDefinition:
+                          type: KubernetesDirect
+                          spec:
+                              connectorRef: account.bootcampgkecluster
+                              namespace: payment-service-dev
+                              releaseName: release-<+INFRA_KEY>
+                      allowSimultaneousDeployments: false
+                  execution:
+                      steps:
+                          - step:
+                                name: Rollout Deployment
+                                identifier: rolloutDeployment
+                                type: K8sRollingDeploy
+                                timeout: 10m
+                                spec:
+                                    skipDryRun: false
+                      rollbackSteps:
+                          - step:
+                                name: Rollback Rollout Deployment
+                                identifier: rollbackRolloutDeployment
+                                type: K8sRollingRollback
+                                timeout: 10m
+                                spec: {}
+              tags: {}
+              failureStrategies:
+                  - onFailure:
+                        errors:
+                            - AllErrors
+                        action:
+                            type: StageRollback
+    properties:
+        ci:
+            codebase:
+                repoName: harness-cie-lab
+                connectorRef: githubLixCraft
+                build: <+input>
+    projectIdentifier: handsoncieLixCraft
+    orgIdentifier: default
+    name: payment-service
+    identifier: paymentservice
+    variables:
+        - name: seusername
+          type: String
+          value: <+input>
