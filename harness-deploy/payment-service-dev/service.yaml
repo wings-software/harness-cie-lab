@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-{{- if .Values.sename}}
-  name: {{.Values.name}}-{{.Values.sename}}-svc
+{{- if lower .Values.sename}}
+  name: {{lower .Values.name}}-{{ lower .Values.sename}}-svc
 {{- else }}
-  name: {{.Values.name}}-svc
+  name: {{ lower .Values.name}}-svc
 {{- end }}
 spec:
   type: {{.Values.serviceType}}
@@ -13,8 +13,8 @@ spec:
     targetPort: {{.Values.serviceTargetPort}}
     protocol: TCP
   selector:
-  {{- if .Values.sename }}
-    app: {{.Values.name}}-{{.Values.sename}}
+  {{- if lower .Values.sename }}
+    app: {{lower .Values.name}}-{{lower .Values.sename}}
   {{- else }}
-    app: {{.Values.name}}
+    app: {{lower .Values.name}}
  {{- end }}
