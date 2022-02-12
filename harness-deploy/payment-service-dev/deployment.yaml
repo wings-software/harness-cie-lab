@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
- {{- if .Values.sename}}
- name: {{ .Values.name }}-{{ .Values.sename }}
+ {{- if lower .Values.sename}}
+ name: {{ lower .Values.name }}-{{ lower .Values.sename }}
  {{- else }}
- name: {{.Values.name}}
+ name: {{lower .Values.name}}
  {{- end }} 
 data:
 {{.Values.env.config | toYaml | indent 2}}
@@ -16,10 +16,10 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
- {{- if .Values.sename}}
- name: {{ .Values.name }}-{{ .Values.sename }}
+ {{- if lower .Values.sename}}
+ name: {{ lower .Values.name }}-{{ lower .Values.sename }}
  {{- else }}
- name: {{.Values.name}}
+ name: {{lower .Values.name}}
  {{- end }} 
 stringData:
 {{.Values.env.secrets | toYaml | indent 2}}
@@ -30,10 +30,10 @@ stringData:
 apiVersion: v1
 kind: Secret
 metadata:
-  {{- if .Values.sename }}
-  name: {{ .Values.name }}-{{ .Values.sename }}-dockercfg
+  {{- if lower .Values.sename }}
+  name: {{ lower .Values.name }}-{{ lower .Values.sename }}-dockercfg
   {{- else }}
-  name: {{ .Values.name }}
+  name: {{ lower .Values.name }}
   {{- end }}
   annotations:
     harness.io/skip-versioning: true
@@ -46,42 +46,42 @@ type: kubernetes.io/dockercfg
 apiVersion: apps/v1
 kind: Deployment
 metadata:
- {{- if .Values.sename}}
- name: {{ .Values.name }}-{{ .Values.sename }}-deployment
+ {{- if lower .Values.sename}}
+ name: {{ lower .Values.name }}-{{ lower .Values.sename }}-deployment
  {{- else }}
- name: {{.Values.name}}-deployment
+ name: {{lower .Values.name}}-deployment
  {{- end }} 
 spec:
   replicas: {{int .Values.replicas}}
   selector:
     matchLabels:
-     {{- if .Values.sename}}
-      app: {{ .Values.name }}-{{ .Values.sename }}
+     {{- if lower .Values.sename}}
+      app: {{ lower .Values.name }}-{{ lower .Values.sename }}
      {{- else }}
-      app: {{ .Values.name }}
+      app: {{ lower .Values.name }}
      {{- end }} 
   template:
     metadata:
       labels:
-        {{- if .Values.sename}}
-        app: {{ .Values.name }}-{{ .Values.sename }}
+        {{- if lower .Values.sename}}
+        app: {{ lower .Values.name }}-{{ lower .Values.sename }}
         {{- else }}
-        app: {{ .Values.name }}
+        app: {{ lower .Values.name }}
         {{- end }} 
     spec:
       {{- if .Values.dockercfg}}
       imagePullSecrets:
-      {{- if .Values.sename }}
-      - name: {{ .Values.name }}-{{ .Values.sename }}-dockercfg
+      {{- if lower .Values.sename }}
+      - name: {{ lower .Values.name }}-{{ lower .Values.sename }}-dockercfg
       {{- else }}
-      - name: {{ .Values.name }}-dockercfg
+      - name: {{ lower .Values.name }}-dockercfg
       {{- end}}
       {{- end}}
       containers:
-      {{- if .Values.sename }}
-      - name: {{ .Values.name }}-{{ .Values.sename }}
+      {{- if lower .Values.sename }}
+      - name: {{ lower .Values.name }}-{{ lower .Values.sename }}
       {{- else }}
-      - name: {{ .Values.name }}
+      - name: {{ lower .Values.name }}
       {{- end}}
         image: {{ .Values.image }}
         {{- if or .Values.env.config .Values.env.secrets}}
@@ -89,18 +89,18 @@ spec:
         envFrom:
         {{- if .Values.env.config}}
         - configMapRef:
-            {{- if .Values.sename }}
-            name: {{ .Values.name }}-{{ .Values.sename }}
+            {{- if lower .Values.sename }}
+            name: {{ lower .Values.name }}-{{ lower .Values.sename }}
             {{- else}}
-            name: {{ .Values.name }}
+            name: {{ lower .Values.name }}
             {{- end}}
         {{- end}}
         {{- if .Values.env.secrets}}
         - secretRef:
-            {{- if .Values.sename }}
-            name: {{ .Values.name }}-{{ .Values.sename }}
+            {{- if lower .Values.sename }}
+            name: {{ lower .Values.name }}-{{ lower .Values.sename }}
             {{- else}}
-            name: {{ .Values.name }}
+            name: {{ lower .Values.name }}
             {{- end}}
         {{- end}}
         {{- end}}
