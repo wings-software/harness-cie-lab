@@ -1,8 +1,8 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
- {{- if .Values.sename}}
- name: ingress-router-{{ .Values.sename }}
+ {{- if lower .Values.sename}}
+ name: ingress-router-{{ lower .Values.sename }}
  {{- else }}
  name: ingress-router
  {{- end }}
@@ -11,16 +11,16 @@ metadata:
    kubernetes.io/ingress.global-static-ip-name: "bootcamp-static-ip"
 spec:
   rules:
-  {{- if .Values.sename}}
-  - host: {{ .Values.sename }}.cie-bootcamp.co.uk
+  {{- if lower .Values.sename}}
+  - host: {{ lower .Values.sename }}.cie-bootcamp.co.uk
   {{- else }}
   - host: cie-bootcamp.co.uk
   {{- end }}
     http:
      paths:
      - backend:
-       {{- if .Values.sename}}
-          serviceName: payment-service-{{ .Values.sename }}-svc
+       {{- if lower .Values.sename}}
+          serviceName: payment-service-{{ lower .Values.sename }}-svc
        {{- else }}
           serviceName: payment-service-svc
        {{- end }}
