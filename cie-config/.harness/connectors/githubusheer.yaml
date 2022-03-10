@@ -1,0 +1,23 @@
+connector:
+  name: github-usheer
+  identifier: githubusheer
+  description:
+  orgIdentifier: default
+  projectIdentifier: bootcampciusheer
+  type: Github
+  spec:
+    url: https://github.com/usheerfotedar
+    validationRepo: harness-cie-lab
+    authentication:
+      type: Http
+      spec:
+        type: UsernameToken
+        spec:
+          username: usheer.fotedar@harness.io
+          tokenRef: ngusheertestgit
+    apiAccess:
+      type: Token
+      spec:
+        tokenRef: ngusheertestgit
+    executeOnDelegate: true
+    type: Account
