@@ -25,7 +25,6 @@ sename: "bootcamp"
 # and a Secret, respectively.
 # Both are added to the container environment in podSpec as envFrom source.
 
-#Set the environmental variables that can be used at runtime.
 env:
   config:
   #  HARNESS_FF_KEY: key
