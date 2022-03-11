@@ -36,7 +36,8 @@ public class CaptchaService extends AbstractCaptchaService {
     	
 
         /**
-         * Define you target on which you would like to evaluate the featureFlag
+         * Define you target on which you would like to evaluate the featureFlag 
+	 * Builds a target using specific key value pairs. This target can then be used by rules to evalue the flag
          */
     
     	
