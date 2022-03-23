@@ -1,0 +1,91 @@
+pipeline:
+    name: CD_Pipeline_ONLY
+    identifier: CD_Pipeline_ONLY
+    allowStageExecutions: false
+    projectIdentifier: cassieciebootcamp
+    orgIdentifier: default
+    tags: {}
+    stages:
+        - stage:
+              name: DeployDev
+              identifier: DeployDev
+              description: ""
+              type: Deployment
+              spec:
+                  serviceConfig:
+                      serviceRef: paymentservice
+                      serviceDefinition:
+                          type: Kubernetes
+                          spec:
+                              variables: []
+                              manifests:
+                                  - manifest:
+                                        identifier: values
+                                        type: Values
+                                        spec:
+                                            store:
+                                                type: Github
+                                                spec:
+                                                    connectorRef: githubcsouzaharness
+                                                    gitFetchType: Branch
+                                                    paths:
+                                                        - harness-deploy/values.yaml
+                                                    repoName: harness-cie-lab
+                                                    branch: main
+                                  - manifest:
+                                        identifier: templates
+                                        type: K8sManifest
+                                        spec:
+                                            store:
+                                                type: Github
+                                                spec:
+                                                    connectorRef: githubcsouzaharness
+                                                    gitFetchType: Branch
+                                                    paths:
+                                                        - harness-deploy/payment-service-dev
+                                                    repoName: harness-cie-lab
+                                                    branch: main
+                                            skipResourceVersioning: false
+                              artifacts:
+                                  primary:
+                                      spec:
+                                          connectorRef: account.bootcampdockerhub
+                                          imagePath: nikpap/payment-service
+                                          tag: csouza-harness-latest
+                                      type: DockerRegistry
+                  infrastructure:
+                      environmentRef: GKEDEV
+                      infrastructureDefinition:
+                          type: KubernetesDirect
+                          spec:
+                              connectorRef: account.bootcampgkecluster
+                              namespace: payment-service-dev
+                              releaseName: release-<+INFRA_KEY>
+                      allowSimultaneousDeployments: false
+                  execution:
+                      steps:
+                          - step:
+                                name: Rollout Deployment
+                                identifier: rolloutDeployment
+                                type: K8sRollingDeploy
+                                timeout: 10m
+                                spec:
+                                    skipDryRun: false
+                      rollbackSteps:
+                          - step:
+                                name: Rollback Rollout Deployment
+                                identifier: rollbackRolloutDeployment
+                                type: K8sRollingRollback
+                                timeout: 10m
+                                spec: {}
+              tags: {}
+              failureStrategies:
+                  - onFailure:
+                        errors:
+                            - AllErrors
+                        action:
+                            type: StageRollback
+    variables:
+        - name: seusername
+          type: String
+          value: <+input>
