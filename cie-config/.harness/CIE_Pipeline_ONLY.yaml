@@ -1,0 +1,41 @@
+pipeline:
+    name: CIE Pipeline ONLY
+    identifier: CIE_Pipeline_ONLY
+    allowStageExecutions: false
+    projectIdentifier: cassieciebootcamp
+    orgIdentifier: default
+    tags: {}
+    properties:
+        ci:
+            codebase:
+                connectorRef: githubcsouzaharness
+                repoName: harness-cie-lab
+                build: <+input>
+    stages:
+        - stage:
+              name: Build
+              identifier: Build
+              type: CI
+              spec:
+                  cloneCodebase: true
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          connectorRef: account.bootcampgkecluster
+                          namespace: payment-service-build
+                  execution:
+                      steps:
+                          - step:
+                                type: Run
+                                name: Build
+                                identifier: Build
+                                spec:
+                                    connectorRef: account.bootcampdockerhub
+                                    image: nikpap/mvn-openjdk-8:harness
+                                    command: |-
+                                        cd payment-service
+                                        mvn -Dmaven.test.skip=true clean install -X
+                                    resources:
+                                        limits:
+                                            memory: 1Gi
+                                            cpu: "1"
