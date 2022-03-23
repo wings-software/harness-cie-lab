@@ -121,7 +121,7 @@ pipeline:
                                       spec:
                                           connectorRef: account.bootcampdockerhub
                                           imagePath: nikpap/payment-service
-                                          tag: csouzaharness-latest
+                                          tag: csouza-harness-latest
                                       type: DockerRegistry
                   infrastructure:
                       environmentRef: GKEDEV
