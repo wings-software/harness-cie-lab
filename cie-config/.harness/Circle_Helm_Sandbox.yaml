@@ -31,6 +31,9 @@ pipeline:
                                             chartVersion: 8.8.1
                                             helmVersion: V3
                                             skipResourceVersioning: false
+                                            commandFlags:
+                                                - commandType: Template
+                                                  flag: --set-string image.tag=cassie
                   infrastructure:
                       environmentRef: GKEDEV
                       infrastructureDefinition:
