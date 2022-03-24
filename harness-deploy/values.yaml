@@ -18,7 +18,7 @@ servicePort: 8080
 serviceTargetPort: 8080
 
 #Templatise this using harness variables.
-sename: <+pipeline.variables.seusername>
+sename: <+pipeline.stages.DeployDev.spec.serviceConfig.serviceDefinition.spec.variables.test>
 
 # Specify all environment variables to be added to the container.
 # The following two maps, config and secrets, are put into a ConfigMap
