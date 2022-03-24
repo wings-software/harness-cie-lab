@@ -1,0 +1,13 @@
+connector:
+  name: bitnami
+  identifier: bitnami
+  description:
+  orgIdentifier: default
+  projectIdentifier: cassieciebootcamp
+  type: HttpHelmRepo
+  spec:
+    helmRepoUrl: https://charts.bitnami.com/bitnami
+    auth:
+      type: Anonymous
+    delegateSelectors:
+    - bootcamp-gke
