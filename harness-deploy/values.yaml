@@ -17,7 +17,7 @@ serviceType: ClusterIP
 servicePort: 8080
 serviceTargetPort: 8080
 
-#Templatise this using harness variables.
+#Templatise this using harness variabless.
 sename: "bootcamps"
 
 # Specify all environment variables to be added to the container.
