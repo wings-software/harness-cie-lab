@@ -1,6 +1,7 @@
 name: payment-service
 replicas: 1
 
+
 image: <+artifact.image>
 # dockercfg: <+artifact.imagePullSecret>
 
