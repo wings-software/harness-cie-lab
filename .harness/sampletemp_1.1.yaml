@@ -1,0 +1,22 @@
+template:
+  name: sampletemp
+  identifier: sampletemp
+  type: Step
+  projectIdentifier: Git_Exp
+  orgIdentifier: default
+  tags: {}
+  spec:
+    timeout: 10m
+    type: ShellScript
+    spec:
+      shell: Bash
+      onDelegate: true
+      source:
+        type: Inline
+        spec:
+          script: |-
+            echo hello
+            echo hello
+      environmentVariables: []
+      outputVariables: []
+  versionLabel: "1.1"
