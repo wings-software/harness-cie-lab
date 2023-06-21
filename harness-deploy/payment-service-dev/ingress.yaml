@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
  {{- if lower .Values.sename}}
@@ -14,7 +14,7 @@ spec:
   - http:
       paths:
       - path: /{{ lower .Values.sename }}
-        pathType: prefix
+        pathType: Prefix
         backend:
           service:
             name: payment-service-{{ lower .Values.sename }}-svc
