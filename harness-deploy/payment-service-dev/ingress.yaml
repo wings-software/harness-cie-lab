@@ -11,8 +11,7 @@ metadata:
    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  - host: 34.23.95.34
-    http:
+  - http:
       paths:
       - path: /{{ lower .Values.sename }}
         pathType: Prefix
