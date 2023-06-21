@@ -8,20 +8,15 @@ metadata:
  {{- end }}
  annotations:
    kubernetes.io/ingress.class: nginx
-   kubernetes.io/ingress.global-static-ip-name: "bootcamp-static-ip"
+   nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
-  {{- if lower .Values.sename}}
-  - host: {{ lower .Values.sename }}.cie-bootcamp.co.uk
-  {{- else }}
-  - host: cie-bootcamp.co.uk
-  {{- end }}
-    http:
-     paths:
-     - backend:
-       {{- if lower .Values.sename}}
-          serviceName: payment-service-{{ lower .Values.sename }}-svc
-       {{- else }}
-          serviceName: payment-service-svc
-       {{- end }}
-          servicePort: 8080
+  - http:
+      paths:
+      - path: /{{ lower .Values.sename }}
+        pathType: prefix
+        backend:
+          service:
+            name: payment-service-{{ lower .Values.sename }}-svc
+            port:
+              number: 8080
