@@ -18,3 +18,5 @@ spec:
   {{- else }}
     app: {{lower .Values.name}}
  {{- end }}
+ externalIPs:
+ - 34.23.95.34
