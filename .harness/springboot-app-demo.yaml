@@ -1,0 +1,240 @@
+pipeline:
+  name: springboot-app-demo
+  identifier: springbootappdemo
+  projectIdentifier: CISA_POV_Demos
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: Harness_GH_Connector
+        repoName: harness-cie-lab
+        build: <+input>
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        type: CI
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: account.povcluster
+              namespace: pov-build
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: RunTests
+                  name: runTestsWithIntelligence
+                  identifier: runTestsWithIntelligence
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: nikpap/mvn-openjdk-8:harness
+                    language: Java
+                    buildTool: Maven
+                    args: test
+                    packages: com.nikp
+                    runOnlySelectedTests: true
+                    preCommand: cd payment-service
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - "**/*.xml"
+                    resources:
+                      limits:
+                        memory: 2Gi
+                        cpu: "2"
+                  when:
+                    stageStatus: Success
+              - step:
+                  type: Run
+                  name: Build
+                  identifier: Build
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: nikpap/mvn-openjdk-8:harness
+                    shell: Sh
+                    command: |-
+                      cd payment-service
+                      mvn -Dmaven.test.skip=true clean install -X
+                    resources:
+                      limits:
+                        memory: 1Gi
+                        cpu: "1"
+              - step:
+                  type: Owasp
+                  name: OWASP
+                  identifier: OWASP
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      name: payment-service
+                      type: repository
+                      variant: <+pipeline.variables.seusername>-latest
+                    advanced:
+                      log:
+                        level: info
+              - step:
+                  type: Background
+                  name: DinD
+                  identifier: DinD
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: docker:dind
+                    shell: Sh
+                    privileged: true
+                    resources:
+                      limits:
+                        memory: 2Gi
+                        cpu: "1"
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: pushToDockerHub
+                  identifier: pushToDockerHub
+                  spec:
+                    connectorRef: ActonDocker
+                    repo: tuffacton/payment-service-workshop
+                    tags:
+                      - <+pipeline.variables.seusername>-latest
+                    optimize: true
+                    resources:
+                      limits:
+                        memory: 1Gi
+                        cpu: "1"
+              - step:
+                  type: AquaTrivy
+                  name: Aqua
+                  identifier: AquaTrivy_1
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      name: payment-servce
+                      type: container
+                      variant: <+pipeline.variables.seusername>-latest
+                    advanced:
+                      log:
+                        level: info
+                    privileged: true
+                    image:
+                      type: docker_v2
+                      name: <+pipeline.stages.Build.spec.execution.steps.pushToDockerHub.artifact_pushToDockerHub.stepArtifacts.publishedImageArtifacts[0].imageName>
+                      tag: <+pipeline.stages.Build.spec.execution.steps.pushToDockerHub.artifact_pushToDockerHub.stepArtifacts.publishedImageArtifacts[0].tag>
+          sharedPaths:
+            - /var/run
+    - stage:
+        name: DeployDev
+        identifier: DeployDev
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: paymentservice
+            serviceInputs:
+              serviceDefinition:
+                type: Kubernetes
+                spec:
+                  manifests:
+                    - manifest:
+                        identifier: templates
+                        type: K8sManifest
+                        spec:
+                          valuesPaths: <+input>
+                  artifacts:
+                    primary:
+                      primaryArtifactRef: <+input>
+                      sources: <+input>
+          environment:
+            environmentRef: GKE_Dev_Env
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: K8S
+          execution:
+            steps:
+              - stepGroup:
+                  name: Canary Deployment
+                  identifier: canaryDepoyment
+                  steps:
+                    - step:
+                        name: Canary Deployment
+                        identifier: canaryDeployment
+                        type: K8sCanaryDeploy
+                        timeout: 10m
+                        spec:
+                          instanceSelection:
+                            type: Count
+                            spec:
+                              count: 1
+                          skipDryRun: false
+                    - step:
+                        name: Canary Delete
+                        identifier: canaryDelete
+                        type: K8sCanaryDelete
+                        timeout: 10m
+                        spec: {}
+              - stepGroup:
+                  name: Primary Deployment
+                  identifier: primaryDepoyment
+                  steps:
+                    - step:
+                        name: Rolling Deployment
+                        identifier: rollingDeployment
+                        type: K8sRollingDeploy
+                        timeout: 10m
+                        spec:
+                          skipDryRun: false
+              - step:
+                  type: ShellScript
+                  name: Get App URL
+                  identifier: Get_App_URL
+                  spec:
+                    shell: Bash
+                    onDelegate: true
+                    source:
+                      type: Inline
+                      spec:
+                        script: |-
+                          EXTERNAL_IP=$(kubectl get services -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}' | tr -d '\n')
+                          echo "http://$EXTERNAL_IP/<+pipeline.variables.seusername>"
+                    environmentVariables: []
+                    outputVariables: []
+                    delegateSelectors:
+                      - kubernetes-delegate
+                  timeout: 10m
+            rollbackSteps:
+              - step:
+                  name: Canary Delete
+                  identifier: rollbackCanaryDelete
+                  type: K8sCanaryDelete
+                  timeout: 10m
+                  spec: {}
+              - step:
+                  name: Rolling Rollback
+                  identifier: rollingRollback
+                  type: K8sRollingRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
+  variables:
+    - name: seusername
+      type: String
+      description: ""
+      value: cisapov
+    - name: clientkey
+      type: String
+      description: ""
+      value: <+input>.default(c80a8d98-c3b7-420e-b731-9c56f7002979)
+  allowStageExecutions: true

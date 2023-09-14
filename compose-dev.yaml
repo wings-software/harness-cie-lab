@@ -1,0 +1,12 @@
+services:
+  app:
+    entrypoint:
+    - sleep
+    - infinity
+    image: nikpap/mvn-openjdk-8:harness
+    init: true
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+
