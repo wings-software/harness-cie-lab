@@ -1,0 +1,39 @@
+pipeline:
+  name: Ci-build-pod
+  identifier: Cibuildpod
+  projectIdentifier: CSETest1
+  orgIdentifier: AbhiOrg
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.AbhinandanGit
+        repoName: charts
+        build: <+input>
+  stages:
+    - stage:
+        name: build-pod
+        identifier: buildpod
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: test
+                  identifier: test
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: docker
+                    shell: Sh
+                    command: echo "test"
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: account.kube
+              namespace: abhinandan
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
