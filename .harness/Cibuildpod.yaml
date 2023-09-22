@@ -28,7 +28,7 @@ pipeline:
                     connectorRef: account.harnessImage
                     image: docker
                     shell: Sh
-                    command: echo "test"
+                    command: echo <+codebase.commitSha>
           infrastructure:
             type: KubernetesDirect
             spec:
