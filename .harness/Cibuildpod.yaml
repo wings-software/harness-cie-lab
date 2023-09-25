@@ -37,3 +37,20 @@ pipeline:
               automountServiceAccountToken: true
               nodeSelector: {}
               os: Linux
+    - stage:
+        name: rest
+        identifier: rest
+        template:
+          templateRef: account.newtest2
+          versionLabel: "1"
+          templateInputs:
+            type: Deployment
+            spec:
+              environment:
+                environmentRef: <+input>
+                environmentInputs: <+input>
+                serviceOverrideInputs: <+input>
+                infrastructureDefinitions: <+input>
+              service:
+                serviceRef: <+input>
+                serviceInputs: <+input>
