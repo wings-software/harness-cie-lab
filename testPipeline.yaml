@@ -1,6 +1,6 @@
 pipeline:
-  name: Security Testing
-  identifier: Security_Testing
+  name: Test Import from Git
+  identifier: test_from_git
   projectIdentifier: harnesslabsci
   orgIdentifier: default
   tags: {}
