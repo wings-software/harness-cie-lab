@@ -1,6 +1,6 @@
 pipeline:
   name: Test Import from Git
-  identifier: test_from_git
+  identifier: Shell_scripts
   projectIdentifier: harnesslabsci
   orgIdentifier: default
   tags: {}
