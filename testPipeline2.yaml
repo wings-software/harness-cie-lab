@@ -1,0 +1,44 @@
+pipeline:
+  name: another test
+  identifier: test_from_git
+  projectIdentifier: harnesslabsci
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: Security Testing
+        identifier: Security_Testing
+        description: ""
+        type: SecurityTests
+        spec:
+          cloneCodebase: true
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: austinsandboxcon
+              namespace: default
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
+          execution:
+            steps:
+              - step:
+                  type: Bandit
+                  name: Bandit_1
+                  identifier: Bandit_1
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      name: <+input>
+                      variant: <+input>
+                    advanced:
+                      log:
+                        level: info
+  properties:
+    ci:
+      codebase:
+        connectorRef: GitCon
+        repoName: <+input>
+        build: <+input>
