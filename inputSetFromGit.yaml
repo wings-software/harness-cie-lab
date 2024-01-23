@@ -1,0 +1,31 @@
+inputSet:
+  name: testing
+  identifier: testing
+  orgIdentifier: default
+  projectIdentifier: harnesslabsci
+  pipeline:
+    identifier: test_from_git
+    stages:
+      - stage:
+          identifier: Security_Testing
+          type: SecurityTests
+          spec:
+            execution:
+              steps:
+                - step:
+                    identifier: Bandit_1
+                    type: Bandit
+                    spec:
+                      target:
+                        type: repository
+                        name: harness-labs-cie
+                        variant: main
+    properties:
+      ci:
+        codebase:
+          repoName: harness-labs-cie
+          build:
+            type: branch
+            spec:
+              branch: main
+  object Object: pipeline.properties.ci.codebase
