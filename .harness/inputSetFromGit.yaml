@@ -1,6 +1,6 @@
 inputSet:
-  name: testing
-  identifier: testing
+  name: Input From Git
+  identifier: Input_From_Git
   orgIdentifier: default
   projectIdentifier: harnesslabsci
   pipeline:
