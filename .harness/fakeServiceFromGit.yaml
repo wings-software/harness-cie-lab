@@ -1,0 +1,34 @@
+service:
+  name: fakeServiceFromGit
+  identifier: fakeServiceFromGit
+  serviceDefinition:
+    type: Kubernetes
+    spec:
+      manifests:
+        - manifest:
+            identifier: ns
+            type: K8sManifest
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: Harness_Labs
+                  gitFetchType: Branch
+                  paths:
+                    - default-k8s-manifests/Manifests/Files/templates/namespace.yaml
+                  repoName: harness-labs
+                  branch: main
+              skipResourceVersioning: false
+              enableDeclarativeRollback: false
+      artifacts:
+        primary:
+          primaryArtifactRef: <+input>
+          sources:
+            - spec:
+                connectorRef: account.AT_Docker
+                imagePath: nginx
+                tag: <+input>
+                digest: ""
+              identifier: nginx
+              type: DockerRegistry
+  gitOpsEnabled: false
