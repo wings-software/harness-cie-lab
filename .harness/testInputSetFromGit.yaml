@@ -1,0 +1,15 @@
+inputSet:
+  name: testInputSetFromGit
+  identifier: testInputSetFromGit
+  orgIdentifier: CSE_Labs
+  projectIdentifier: CSE_Lab_Project
+  pipeline:
+    identifier: pipelineStoredInGit
+    stages:
+      - stage:
+          identifier: test
+          type: Custom
+          variables:
+            - name: testVar
+              type: String
+              value: test
