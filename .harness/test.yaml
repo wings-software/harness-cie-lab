@@ -1,0 +1,15 @@
+inputSet:
+  name: test
+  identifier: test
+  orgIdentifier: CSE_Labs
+  projectIdentifier: CSE_Lab_Project
+  pipeline:
+    identifier: testBBTrigger
+    stages:
+      - stage:
+          identifier: run
+          type: Custom
+          variables:
+            - name: test
+              type: String
+              value: test
