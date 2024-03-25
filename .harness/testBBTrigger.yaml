@@ -1,0 +1,36 @@
+pipeline:
+  name: testBBTrigger
+  identifier: testBBTrigger
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  stages:
+    - stage:
+        name: run
+        identifier: run
+        description: ""
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: ShellScript
+                  name: ShellScript_1
+                  identifier: ShellScript_1
+                  spec:
+                    shell: Bash
+                    executionTarget: {}
+                    source:
+                      type: Inline
+                      spec:
+                        script: echo "Hello World"
+                    environmentVariables: []
+                    outputVariables: []
+                  timeout: 10m
+        tags: {}
+        variables:
+          - name: test
+            type: String
+            description: ""
+            required: false
+            value: <+input>
