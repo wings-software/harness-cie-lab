@@ -1,0 +1,15 @@
+inputSet:
+  name: testPushToGitInputSet
+  identifier: testPushToGitInputSet
+  orgIdentifier: CSE_Labs
+  projectIdentifier: CSE_Lab_Project
+  pipeline:
+    identifier: testPushToGit
+    stages:
+      - stage:
+          identifier: test
+          type: Custom
+          variables:
+            - name: testVar
+              type: String
+              value: test
