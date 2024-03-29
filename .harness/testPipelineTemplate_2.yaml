@@ -1,0 +1,43 @@
+template:
+  name: testPipelineTemplate
+  identifier: testPipelineTemplate
+  type: Pipeline
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  spec:
+    stages:
+      - stage:
+          name: echo_me
+          identifier: echo_me
+          template:
+            templateRef: testing
+            versionLabel: "3"
+            templateInputs:
+              type: CI
+              spec:
+                infrastructure:
+                  type: KubernetesDirect
+                  spec:
+                    connectorRef: <+input>
+                    namespace: <+input>
+                execution:
+                  steps:
+                    - step:
+                        identifier: Run_1
+                        type: Run
+                        spec:
+                          image: <+input>
+    properties:
+      ci:
+        codebase:
+          connectorRef: Harness_Labs
+          repoName: harness-labs-cie
+          build: <+input>
+    variables:
+      - name: testVar
+        type: String
+        description: ""
+        required: false
+        value: <+input>
+  versionLabel: "2"
