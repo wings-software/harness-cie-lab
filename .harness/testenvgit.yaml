@@ -1,0 +1,7 @@
+environment:
+  name: test-env-git
+  identifier: testenvgit
+  accountId: tjgVkyI9Sq63D6w9gUiVFQ
+  orgIdentifier: CSE_Labs
+  projectIdentifier: CSE_Lab_Project
+  type: PreProduction
