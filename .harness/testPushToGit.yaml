@@ -25,7 +25,7 @@ pipeline:
                       spec:
                         script: |-
                           echo "hello world"
-                          echo "test"
+                          echo "testing"
                     environmentVariables: []
                     outputVariables: []
                   timeout: 10m
