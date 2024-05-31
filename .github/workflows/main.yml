@@ -1,7 +1,30 @@
-- uses: actions/github-script@v6.1.1
-  id: set-result
-  with:
-    script: return "Hello!"
-    result-encoding: string
-- name: Get result
-  run: echo "${{steps.set-result.outputs.result}}"
+on: push
+#   pull_request:
+#     paths:
+#     - terraform/**
+#   deployment_status: 
+#   # pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      actions: write
+      checks: write
+      deployments: write
+      issues: write
+      discussions: write
+      pages: write
+      pull-requests: write
+      repository-projects: write
+      security-events: write
+      statuses: write
+    steps:
+    - uses: actions/github-script@v6.1.1
+      id: set-result
+      with:
+        script: return "Hello!"
+        result-encoding: string
+    - name: Get result
+      run: echo "${{steps.set-result.outputs.result}}"
